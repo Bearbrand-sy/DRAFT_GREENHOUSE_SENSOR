@@ -60,5 +60,23 @@ function toggleIrrigation(btn){
   alert(`${btn.innerText} Irrigation Activated`);
 }
 
+// Toggle Automation Status (Enabled ↔ Disabled)
+document.querySelectorAll('.toggle-badge').forEach(badge => {
+  badge.style.cursor = 'pointer'; // indicate clickable
+  badge.addEventListener('click', () => {
+    if (badge.textContent === 'Enabled') {
+      badge.textContent = 'Disabled';
+      badge.classList.remove('status-on');
+      badge.style.background = '#e0e0e0'; // gray for disabled
+      badge.style.color = '#555';
+    } else {
+      badge.textContent = 'Enabled';
+      badge.classList.add('status-on');
+      badge.style.background = '#38ef7d'; // green for enabled
+      badge.style.color = 'white';
+    }
+  });
+});
+
 // Initialize daily logs
 window.onload=filterLogs;

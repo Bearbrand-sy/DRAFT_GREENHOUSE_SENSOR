@@ -132,7 +132,7 @@
           margin-bottom:10px;
           flex-wrap:wrap;
         }
-        
+
         #logSelect, #generateReport, .irrigation-btn {
           width: 10rem;
           padding:10px 15px;
@@ -157,6 +157,10 @@
           display: grid;
           grid-template-columns: repeat(2, 1fr);
           gap: 20px;
+        }
+
+        .toggle-badge {
+          transition: all 0.3s ease;
         }
 
         @media(max-width:900px){
@@ -209,16 +213,16 @@
           </div>
 
           <div class="section">
-            <h3 style="margin-bottom: 1rem;"> Automation Settings</h3>
+            <h3 style="margin-bottom: 1rem;">Automation Settings</h3>
             <div class="info-row"><span>Humidity Threshold:</span><b>65 %</b></div>
             <div class="info-row"><span>Temperature Limit:</span><b>30 °C</b></div>
             <div class="info-row">
-              <span>Auto Irrigation:</span>
-              <span class="status-badge status-on">Enabled</span>
-              <span>Auto Ventilation:</span>
-              <span class="status-badge status-on">Enabled</span>
+                <span>Auto Irrigation:</span>
+                <span class="status-badge status-on toggle-badge">Enabled</span>
+                <span>Auto Ventilation:</span>
+                <span class="status-badge status-on toggle-badge">Enabled</span>
             </div>
-          </div>
+            </div>
         </div>
   </div>
 
