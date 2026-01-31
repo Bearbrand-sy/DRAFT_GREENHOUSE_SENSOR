@@ -1,4 +1,4 @@
-// Navigation
+// Sidebar navigation
 function showSection(sectionId){
   const sections=['monitoring','dataLogs','graphs'];
   sections.forEach(id=>document.getElementById(id).style.display='none');
@@ -53,30 +53,38 @@ const chart=new Chart(ctx,{
   options:{ responsive:true, plugins:{legend:{position:'top'}}, scales:{y:{beginAtZero:false}} }
 });
 
-// Irrigation buttons toggle
-function toggleIrrigation(btn){
-  document.querySelectorAll('.irrigation-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  alert(`${btn.innerText} Irrigation Activated`);
+// Sync toggles with metric cards
+function updateMetricFromToggle(id, metricId){
+  const toggle = document.getElementById(id);
+  const metricSpan = document.getElementById(metricId);
+
+  function syncMetric() {
+    if(toggle.checked){
+      metricSpan.textContent = 'ON';
+      metricSpan.style.background = '#38ef7d';
+    } else {
+      metricSpan.textContent = 'OFF';
+      metricSpan.style.background = '#f5576c';
+    }
+  }
+
+  // Initial sync
+  syncMetric();
+
+  // Listen for toggle changes
+  toggle.addEventListener('change', syncMetric);
 }
 
-// Toggle Automation Status (Enabled ↔ Disabled)
-document.querySelectorAll('.toggle-badge').forEach(badge => {
-  badge.style.cursor = 'pointer'; // indicate clickable
-  badge.addEventListener('click', () => {
-    if (badge.textContent === 'Enabled') {
-      badge.textContent = 'Disabled';
-      badge.classList.remove('status-on');
-      badge.style.background = '#e0e0e0'; // gray for disabled
-      badge.style.color = '#555';
-    } else {
-      badge.textContent = 'Enabled';
-      badge.classList.add('status-on');
-      badge.style.background = '#38ef7d'; // green for enabled
-      badge.style.color = 'white';
-    }
-  });
-});
+// Manual buttons
+function manualToggle(type){
+  const toggle = document.getElementById(type==='irrigation'?'auto-irrigation':'auto-ventilation');
+  toggle.checked = !toggle.checked;
+  toggle.dispatchEvent(new Event('change'));
+}
+
+// Initialize switches
+updateMetricFromToggle('auto-irrigation','metric-irrigation');
+updateMetricFromToggle('auto-ventilation','metric-ventilation');
 
 // Initialize daily logs
 window.onload=filterLogs;
