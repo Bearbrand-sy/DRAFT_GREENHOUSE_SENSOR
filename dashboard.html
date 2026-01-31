@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Greenhouse Monitoring Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+          font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background:#f0f2f5;
+          min-height:100vh;
+          display:flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+          width: 250px;
+          background: linear-gradient(180deg, #213885 0%, #0f1a58 100%);
+          color: white;
+          display:flex;
+          flex-direction: column;
+          padding:10px;
+        }
+        .sidebar h2 {
+          font-size:22px;
+          margin-bottom:20px;
+          text-align:center;
+        }
+        .sidebar button {
+          background: transparent;
+          border: none;
+          color: white;
+          text-align: left;
+          padding: 10px 6px;
+          font-size:16px;
+          cursor:pointer;
+          border-radius:8px;
+          transition: background 0.3s ease;
+          margin-bottom:5px;
+        }
+        .sidebar button:hover, .sidebar button.active {
+          background: rgba(255,255,255,0.2);
+        }
+
+        /* Main content */
+        .main-content {
+          flex:1;
+          padding:20px;
+          overflow-y:auto;
+        }
+
+        .section {
+          background:white;
+          padding:20px;
+          margin-bottom:20px;
+          border-radius:5px;
+          animation: fadeInUp 0.5s ease;
+        }
+        @keyframes fadeInUp {
+          from { opacity:0; transform:translateY(30px);}
+          to { opacity:1; transform:translateY(0);}
+        }
+
+        /* Metric Cards */
+        .metrics-grid {
+          display:grid;
+          grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+          gap:15px;
+          margin-bottom:20px;
+        }
+        .metric-card {
+          background: linear-gradient(135deg,#2949b4 0%, #0f1a58 100%);
+          color:white;
+          padding:20px;
+          border-radius:12px;
+          text-align:center;
+        }
+        .metric-icon { font-size:32px; margin-bottom:10px; }
+        .metric-value { font-size:22px; font-weight:1000; }
+        .metric-label { font-size:12px; text-transform:uppercase; opacity:0.8; }
+
+        /* Info Rows */
+        .info-row {
+          margin-bottom:3px;
+          font-size:15px;
+          padding:10px;
+          background:#f7f9fc;
+          border-radius:8px;
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          border-left:4px solid transparent;
+          transition: all 0.3s ease;
+        }
+        
+        .info-row b { color:#667eea; font-weight:600; }
+
+        /* Status badges */
+        .status-badge {
+          display:inline-block;
+          padding:4px 12px;
+          border-radius:20px;
+          font-size:13px;
+          font-weight:600;
+        }
+        .status-normal { background:#38ef7d; color:white; }
+        .status-warning { background:#f5576c; color:white; }
+        .status-on { background:#667eea; color:white; }
+        .status-off { background:#e0e0e0; color:#666; }
+
+        /* Table styling */
+        table {
+          width:100%;
+          border-collapse:separate;
+          border-spacing:0;
+          border-radius:12px;
+          overflow:hidden;
+        }
+        th {
+          background: linear-gradient(135deg, #3356c9 0%, #152686 100%);
+          color:white;
+          padding:12px;
+        }
+        td { padding:10px; text-align:center; border-bottom:1px solid #f0f0f0; }
+
+        /* Controls */
+        .controls {
+          display:flex;
+          gap:10px;
+          margin-bottom:10px;
+          flex-wrap:wrap;
+        }
+        #logSelect, #generateReport, .irrigation-btn {
+          width: 10rem;
+          padding:10px 15px;
+          border-radius:10px;
+          border:none;
+          cursor:pointer;
+          font-weight:600;
+          transition: all 0.3s ease;
+        }
+        #logSelect { border:2px solid #667eea; background:white; flex:1; min-width:130px; }
+        #generateReport { background:#1da852; color:white; flex:1; width: 10rem; }
+        #generateReport:hover { transform:translateY(-2px); }
+        .irrigation-btn { background:#667eea; color:white; min-width:120px; }
+        .irrigation-btn.active { background:#38ef7d; }
+
+
+        #graphContainer { max-height:300px; }
+
+
+
+        .dashboard {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 20px;
+        }
+
+        @media(max-width:900px){
+          .main-content{padding:10px;}
+          .metrics-grid{grid-template-columns:repeat(auto-fit,minmax(100px,1fr));}
+        }
+
+        @media (max-width: 768px) {
+          .dashboard {
+            grid-template-columns: 1fr;
+          }
+        }
+
+</style>
+</head>
+<body>
+
+        <div class="sidebar">
+          <h2>🌱 Greenhouse NBSC</h2>
+          <button class="active" onclick="showSection('monitoring')">Monitoring</button>
+          <button onclick="showSection('dataLogs')">Data Logs</button>
+          <button onclick="showSection('graphs')">Graphs</button>
+          <button style="margin-top:32rem;" onclick="logout()">Logout</button>
+        </div>
+
+        <div class="main-content">
+
+          <!-- Monitoring Section -->
+          <div class="section" id="monitoring">
+            <h3 style="margin-bottom: 1rem;"> Monitoring Dashboard</h3>
+            <div class="metrics-grid">
+              <div class="metric-card"><div class="metric-icon">💧</div><div class="metric-value">68%</div><div class="metric-label"> Humidity</div></div> 
+              <div class="metric-card"><div class="metric-icon">🌡️</div><div class="metric-value">26.5°C</div><div class="metric-label">Temperature</div></div>      
+              <div class="metric-card"><div class="metric-icon">💧</div><div class="metric-value">  45%</div><div class="metric-label"> Soil Moisture</div></div>
+               <div class="metric-card"><div class="metric-icon">🚿</div><div class="metric-value"><span class="status-badge status-on">ON</span></div><div class="metric-label">Irrigation</div></div>
+                <div class="metric-card"><div class="metric-icon">𖣘</div><div class="metric-value"><span class="status-badge status-on">ON</span></div><div class="metric-label">Ventilation</div></div>
+            </div>
+
+            <div class="dashboard">
+          <div class="section">
+            <h3 style="margin-bottom: 1rem;"> Plant Details</h3>
+            <div class="info-row"><span>Plant Name:</span><b>Grapes</b></div>
+            <div class="info-row"><span>Ideal Temperature:</span><b>15 – 30 °C</b></div>
+            <div class="info-row"><span>Ideal Humidity:</span><b>50 – 60 %</b></div>
+            <div class="info-row"><span>Ideal Soil Moisture:</span><b>60 – 70 %</b></div>
+            <div class="info-row">
+              <span>Growth Status:</span>
+              <span class="status-badge status-normal">Optimal</span>
+            </div>
+          </div>
+
+          <div class="section">
+            <h3 style="margin-bottom: 1rem;"> Automation Settings</h3>
+            <div class="info-row"><span>Humidity Threshold:</span><b>65 %</b></div>
+            <div class="info-row"><span>Temperature Limit:</span><b>30 °C</b></div>
+            <div class="info-row">
+              <span>Auto Irrigation:</span>
+              <span class="status-badge status-on">Enabled</span>
+              <span>Auto Ventilation:</span>
+              <span class="status-badge status-on">Enabled</span>
+            </div>
+
+            <div class="controls" style="margin-top:15px;">
+              <button class="irrigation-btn" onclick="toggleIrrigation(this)">Automatic</button>
+              <button class="irrigation-btn" onclick="toggleIrrigation(this)">Manual</button>
+            </div>
+          </div>
+        </div>
+  </div>
+
+  <!-- Data Logs Section -->
+  <div class="section" id="dataLogs" style="display:none;">
+    <h3> Sensor Data Logs</h3>
+
+    <div class="controls" style="width: 10rem; margin-top: 0.5rem;">
+      <select id="logSelect" onchange="filterLogs()">
+        <option value="daily"> Daily</option>
+        <option value="weekly"> Weekly</option>
+        <option value="monthly"> Monthly</option>
+        
+      </select>
+     
+    </div>
+
+    <div style="overflow-x:auto;">
+      <button id="generateReport" onclick="generateReport()" style="width: 10rem; margin-bottom: 0.5rem;"> Generate Report</button>
+      <table id="logTable">
+        
+        <thead>
+          <tr><th>Date</th><th>Time</th><th>Temp (°C)</th><th>Humidity (%)</th><th>Irrigation</th></tr>
+        </thead>
+        <tbody id="logBody">
+          <tr data-logtype="daily"><td>2026-01-29</td><td>09:00</td><td>25.8</td><td>72</td><td>OFF</td></tr>
+          <tr data-logtype="daily"><td>2026-01-29</td><td>09:30</td><td>26.4</td><td>65</td><td>ON</td></tr>
+          <tr data-logtype="daily"><td>2026-01-29</td><td>10:00</td><td>26.5</td><td>68</td><td>ON</td></tr>
+          <tr data-logtype="weekly"><td>2026-01-25</td><td>10:00</td><td>26.9</td><td>71</td><td>OFF</td></tr>
+          <tr data-logtype="weekly"><td>2026-01-22</td><td>14:30</td><td>27.1</td><td>67</td><td>OFF</td></tr>
+          <tr data-logtype="monthly"><td>2026-01-05</td><td>11:00</td><td>27.2</td><td>69</td><td>OFF</td></tr>
+        </tbody>
+      </table>
+    </div>
+    
+  </div>
+
+  <!-- Graph Section -->
+  <div class="section" id="graphs" style="display:none;">
+    <h3> Temperature & Humidity Graph</h3>
+    <canvas id="graphContainer"></canvas>
+    
+  </div>
+
+  
+</div>
+
+<script src="script.js"> </script>
+</body>
+</html>

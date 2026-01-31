@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Greenhouse System Login</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #3356c9 0%, #152686 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  body::before, body::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  body::before {
+    width: 500px; height: 500px;
+    top: -250px; right: -250px;
+    animation: float 6s ease-in-out infinite;
+  }
+
+  body::after {
+    width: 400px; height: 400px;
+    bottom: -200px; left: -200px;
+    animation: float 8s ease-in-out infinite reverse;
+  }
+
+  @keyframes float { 0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-20px) rotate(180deg);} }
+
+  .login-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 45px 40px;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    width: 100%;
+    max-width: 420px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    position: relative;
+    z-index: 1;
+    animation: slideUp 0.6s ease;
+  }
+
+  @keyframes slideUp { from {opacity:0; transform:translateY(50px);} to {opacity:1; transform:translateY(0);} }
+
+  .logo-container { text-align: center; margin-bottom: 30px; }
+  .logo-icon { font-size: 64px; margin-bottom: 10px; animation: bounce 2s ease-in-out infinite; }
+  @keyframes bounce { 0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);} }
+
+  .login-container h2 { text-align: center; margin-bottom: 10px; font-size: 28px; background: linear-gradient(135deg, #3356c9 0%, #152686 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-weight:700; }
+  .subtitle { text-align:center; color:#666; font-size:14px; margin-bottom:30px; }
+
+  .input-group { position: relative; margin-bottom: 25px; }
+  .input-icon { position: absolute; left:15px; top:50%; transform: translateY(-50%); font-size:20px; color:#667eea; z-index:1; }
+
+  .login-container input[type="text"],
+  .login-container input[type="password"] {
+    width: 100%; padding:15px 15px 15px 50px;
+    border-radius:12px; border:2px solid #e0e0e0;
+    font-size:15px; transition: all 0.3s ease; background:white;
+  }
+
+  .login-container input:focus { outline:none; border-color:#667eea; box-shadow:0 0 0 4px rgba(102,126,234,0.1); transform:translateY(-2px); }
+  .login-container input::placeholder { color:#999; }
+
+  .password-toggle {
+    position: absolute; right:15px; top:50%; transform:translateY(-50%);
+    cursor:pointer; font-size:18px; color:#999; user-select:none; transition: color 0.3s ease;
+  }
+  .password-toggle:hover { color:#667eea; }
+
+  .remember-forgot { display:flex; justify-content:space-between; align-items:center; margin-bottom:25px; font-size:13px; }
+  .remember-me { display:flex; align-items:center; gap:8px; color:#666; cursor:pointer; }
+  .remember-me input[type="checkbox"] { width:18px; height:18px; cursor:pointer; accent-color:#667eea; }
+  .forgot-password { color:#667eea; text-decoration:none; font-weight:600; transition: color 0.3s ease; }
+  .forgot-password:hover { color:#764ba2; text-decoration:underline; }
+
+  .login-container button {
+    width:100%; padding:15px; background: linear-gradient(135deg, #3356c9 0%, #152686 100% 100%);
+    color:white; font-size:16px; font-weight:600; border:none; border-radius:12px; cursor:pointer;
+    transition:all 0.3s ease; box-shadow:0 4px 15px rgba(102,126,234,0.4); position:relative; overflow:hidden;
+  }
+
+  .login-container button::before {
+    content: ''; position:absolute; top:0; left:-100%; width:100%; height:100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); transition:left 0.5s ease;
+  }
+  .login-container button:hover::before { left:100%; }
+  .login-container button:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(102,126,234,0.6); }
+  .login-container button:active { transform:translateY(0); }
+  .login-container button:disabled { background:#ccc; cursor:not-allowed; box-shadow:none; }
+
+  .error-message, .success-message {
+    text-align:center; padding:12px; border-radius:10px; margin-bottom:20px; font-size:14px; display:none;
+  }
+
+  .error-message { background: linear-gradient(135deg,#f093fb 0%,#f5576c 100%); color:white; animation: shake 0.5s ease; }
+  .error-message.show { display:block; }
+
+  .success-message { background: linear-gradient(135deg,#11998e 0%,#38ef7d 100%); color:white; animation: slideDown 0.5s ease; }
+  .success-message.show { display:block; }
+
+  @keyframes shake { 0%,100%{transform:translateX(0);}25%{transform:translateX(-10px);}75%{transform:translateX(10px);} }
+  @keyframes slideDown { from{opacity:0; transform:translateY(-20px);} to{opacity:1; transform:translateY(0);} }
+
+  /* Responsive */
+  @media(max-width:480px){
+    .login-container{padding:35px 25px;margin:20px;}
+    .login-container h2{font-size:24px;}
+    .logo-icon{font-size:48px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="login-container">
+  <div class="logo-container">
+    <div class="logo-icon">🌱</div>
+    <h2>NBSC Greenhouse System</h2>
+  </div>
+
+  <div class="error-message" id="errorMsg"></div>
+  <div class="success-message" id="successMsg"></div>
+
+  <form id="loginForm" onsubmit="login(event)">
+    <div class="input-group">
+      <span class="input-icon">👤</span>
+      <input type="text" id="username" placeholder="Username" required autocomplete="username">
+    </div>
+
+    <div class="input-group">
+      <span class="input-icon">🔒</span>
+      <input type="password" id="password" placeholder="Password" required autocomplete="current-password">
+      <span class="password-toggle" onclick="togglePassword()" id="toggleIcon"></span>
+    </div>
+
+    <div class="remember-forgot">
+      <label class="remember-me">
+        <input type="checkbox" id="rememberMe">
+        <span>Remember me</span>
+      </label>
+      
+    </div>
+
+    <button type="submit" id="loginBtn">
+      <span id="btnText">Login</span>
+    </button>
+  </form>
+</div>
+
+<script>
+const validUsername = "admin";
+const validPassword = "12345";
+
+function login(event){
+  event.preventDefault();
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+  const errorMsg = document.getElementById("errorMsg");
+  const successMsg = document.getElementById("successMsg");
+  const loginBtn = document.getElementById("loginBtn");
+  const btnText = document.getElementById("btnText");
+
+  errorMsg.classList.remove("show");
+  successMsg.classList.remove("show");
+
+  loginBtn.disabled = true;
+  btnText.innerHTML = '<span class="loading-spinner"></span>Logging in...';
+
+  setTimeout(() => {
+    if(username===validUsername && password===validPassword){
+      successMsg.innerText = "Login successful! Redirecting...";
+      successMsg.classList.add("show");
+      if(document.getElementById("rememberMe").checked){
+        localStorage.setItem("rememberedUser", username);
+      }
+      setTimeout(()=>{ window.location.href="dashboard.html"; }, 1500);
+    } else {
+      errorMsg.innerText = "❌ Invalid username or password!";
+      errorMsg.classList.add("show");
+      loginBtn.disabled=false;
+      btnText.innerHTML='Login';
+      document.getElementById("username").style.animation="shake 0.5s ease";
+      document.getElementById("password").style.animation="shake 0.5s ease";
+      setTimeout(()=>{
+        document.getElementById("username").style.animation="";
+        document.getElementById("password").style.animation="";
+      },500);
+    }
+  },1000);
+}
+
+function togglePassword(){
+  const input=document.getElementById("password");
+  const icon=document.getElementById("toggleIcon");
+  if(input.type==="password"){ input.type="text"; icon.innerText="👁"; }
+  else{ input.type="password"; icon.innerText="👁"; }
+}
+
+function forgotPassword(event){
+  event.preventDefault();
+  const successMsg=document.getElementById("successMsg");
+  successMsg.innerText="📧 Password reset link sent to your email!";
+  successMsg.classList.add("show");
+  setTimeout(()=>{ successMsg.classList.remove("show"); },3000);
+}
+
+window.onload=function(){
+  const rememberedUser=localStorage.getItem("rememberedUser");
+  if(rememberedUser){ document.getElementById("username").value=rememberedUser; document.getElementById("rememberMe").checked=true; }
+}
+</script>
+
+</body>
+</html>
